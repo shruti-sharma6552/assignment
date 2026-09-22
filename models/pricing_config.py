@@ -12,6 +12,8 @@ class PricingConfig(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     convenience_fee = db.Column(db.Numeric(10, 2), nullable=False, default=Decimal("0.00"))
     gst_rate = db.Column(db.Numeric(5, 2), nullable=False, default=Decimal("0.00"))
+    surge_threshold_percent = db.Column(db.Numeric(5, 2), nullable=False, default=Decimal("80.00"))
+    surge_percentage = db.Column(db.Numeric(5, 2), nullable=False, default=Decimal("20.00"))
     updated_at = db.Column(
         db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )

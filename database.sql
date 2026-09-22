@@ -113,6 +113,8 @@ CREATE TABLE pricing_config (
   id              INT AUTO_INCREMENT PRIMARY KEY,
   convenience_fee DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   gst_rate        DECIMAL(5,2)  NOT NULL DEFAULT 0.00,
+  surge_threshold_percent DECIMAL(5,2) NOT NULL DEFAULT 80.00,
+  surge_percentage DECIMAL(5,2) NOT NULL DEFAULT 20.00,
   updated_at      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 

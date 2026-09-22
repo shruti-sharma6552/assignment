@@ -539,8 +539,14 @@ def pricing():
                 config.gst_rate = parse_decimal(
                     request.form.get("gst_rate"), "GST rate", maximum=Decimal("100")
                 )
+                config.surge_threshold_percent = parse_decimal(
+                    request.form.get("surge_threshold_percent"), "Surge threshold", maximum=Decimal("100")
+                )
+                config.surge_percentage = parse_decimal(
+                    request.form.get("surge_percentage"), "Surge percentage"
+                )
                 db.session.commit()
-                flash("Convenience fee and GST updated.", "success")
+                flash("Pricing configuration updated.", "success")
             elif action == "tier":
                 tier = db.session.get(
                     SeatTier, parse_int(request.form.get("tier_id"), "Tier", minimum=1)

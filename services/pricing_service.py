@@ -167,8 +167,15 @@ def quote_for_tier(seat_tier, quantity, membership=None, on_date=None) -> dict:
     if membership is not None and not membership.active:
         raise PricingError("Invalid membership: this membership is no longer active.")
 
+    surge_multiplier = Decimal("1.00")
+    occupancy = Decimal(str(seat_tier.occupancy_percent))
+    if occupancy >= config.surge_threshold_percent:
+        surge_multiplier += (config.surge_percentage / HUNDRED)
+    
+    surged_price = money(seat_tier.price * surge_multiplier)
+
     breakdown = calculate_price(
-        ticket_price=seat_tier.price,
+        ticket_price=surged_price,
         quantity=quantity,
         festival_discount=festival.amount if festival else ZERO,
         membership_percentage=membership.discount_percentage if membership else ZERO,
@@ -177,7 +184,7 @@ def quote_for_tier(seat_tier, quantity, membership=None, on_date=None) -> dict:
         gst_rate=config.gst_rate,
     )
     breakdown["quantity"] = int(quantity)
-    breakdown["ticket_price"] = money(seat_tier.price)
+    breakdown["ticket_price"] = surged_price
     breakdown["seat_tier_name"] = seat_tier.name
     breakdown["membership_name"] = membership.name if membership else None
     breakdown["festival_name"] = festival.name if festival else None

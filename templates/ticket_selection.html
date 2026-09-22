@@ -132,8 +132,20 @@
         <div class="seats-container">
           {% for tier in show.seat_tiers %}
             {% set row_length = show.cinema.get_row_length(tier.name) %}
-            <div class="tier-section mb-5" data-tier-id="{{ tier.id }}" data-tier-name="{{ tier.name }}" data-price="{{ tier.price }}" data-available="{{ tier.is_selectable | lower }}">
-              <h4 class="text-center h6 mb-3 text-warning">{{ tier.name | upper }} (₹{{ '%.2f'|format(tier.price) }})</h4>
+            {% set is_surging = false %}
+            {% set current_price = tier.price %}
+            {% if tier.occupancy_percent >= config.surge_threshold_percent %}
+              {% set current_price = (tier.price * (100 + config.surge_percentage) / 100) %}
+              {% set is_surging = true %}
+            {% endif %}
+            
+            <div class="tier-section mb-5" data-tier-id="{{ tier.id }}" data-tier-name="{{ tier.name }}" data-price="{{ current_price }}" data-available="{{ tier.is_selectable | lower }}">
+              <h4 class="text-center h6 mb-3 text-warning">
+                {{ tier.name | upper }} (₹{{ '%.2f'|format(current_price) }})
+                {% if is_surging %}
+                  <span class="badge bg-danger ms-2" style="font-size: 0.6em; vertical-align: middle;">🔥 High Demand</span>
+                {% endif %}
+              </h4>
               
               {% set rows = (tier.total_seats // row_length) + (1 if tier.total_seats % row_length > 0 else 0) %}
               {% for r in range(rows) %}
