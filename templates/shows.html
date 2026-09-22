@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ cinema.name }} — shows{% endblock %}
+{% block content %}
+<h1 class="h4 mb-1">{{ cinema.name }}</h1>
+<p class="text-secondary">{{ cinema.location }}, {{ cinema.city }}</p>
+<table class="table cp-table align-middle">
+  <thead><tr><th>Movie</th><th>Date</th><th>Time</th><th>Seats left</th><th></th></tr></thead>
+  <tbody>
+  {% for show in shows %}
+    <tr>
+      <td>{{ show.movie.title }}</td>
+      <td>{{ show.show_date.strftime('%d %b %Y') }}</td>
+      <td>{{ show.start_time.strftime('%I:%M %p') }}</td>
+      <td>{{ show.seat_tiers | sum(attribute='available_seats') }}</td>
+      <td class="text-end"><a class="btn btn-sm btn-warning" href="{{ url_for('customer.ticket_selection', show_id=show.id) }}">Select tickets</a></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="text-secondary">No upcoming shows at this cinema.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

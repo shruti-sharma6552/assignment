@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Movies — admin{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h1 class="h4 mb-0">Movies</h1>
+  <a class="btn btn-warning btn-sm" href="{{ url_for('admin.add_movie') }}">Add movie</a>
+</div>
+<table class="table cp-table align-middle">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Title</th>
+      <th>Language</th>
+      <th>Genre</th>
+      <th>Duration</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in movies %}
+    <tr>
+      <td>
+        <div class="cp-thumb">
+          {% if m.poster_url %}
+          <img src="{{ url_for('static', filename=m.poster_url) }}" alt="{{ m.title }} poster">
+          {% else %}
+          <span>{{ m.title[:1] }}</span>
+          {% endif %}
+        </div>
+      </td>
+      <td>{{ m.title }}</td>
+      <td>{{ m.language }}</td>
+      <td>{{ m.genre or '—' }}</td>
+      <td>{{ m.duration }} min</td>
+      <td><span class="badge {{ 'bg-success' if m.status == 'ACTIVE' else 'bg-secondary' }}">{{ m.status }}</span></td>
+      <td class="text-end">
+        <a class="btn btn-sm btn-outline-light" href="{{ url_for('admin.edit_movie', movie_id=m.id) }}">Edit</a>
+        <form class="d-inline" method="post" action="{{ url_for('admin.delete_movie', movie_id=m.id) }}"
+          onsubmit="return confirm('Remove {{ m.title }}?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="7" class="text-secondary">No movies yet.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

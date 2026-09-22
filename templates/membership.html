@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Memberships — CinePrice{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Memberships</h1>
+<p class="text-secondary">Pick a membership at checkout. The discount is a percentage of the amount left after the festival offer, capped at the maximum shown.</p>
+<div class="row g-3">
+  {% for m in memberships %}
+    <div class="col-md-4">
+      <div class="card cp-card h-100 {% if m.id == current_user.membership_id %}cp-card-active{% endif %}">
+        <div class="card-body">
+          <h2 class="h6">{{ m.name }}</h2>
+          <p class="cp-price mb-1">{{ m.discount_percentage }}%</p>
+          <p class="small text-secondary mb-0">Maximum discount ₹{{ '%.2f'|format(m.discount_cap) }}</p>
+          {% if m.id == current_user.membership_id %}<span class="badge bg-warning text-dark mt-2">Your membership</span>{% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

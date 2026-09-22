@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit show' if show else 'Create show' }} — admin{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+<div class="card cp-card"><div class="card-body p-4">
+  <h1 class="h5 mb-3">{{ 'Edit show' if show else 'Create show' }}</h1>
+  <form method="post" action="{{ url_for('admin.edit_show', show_id=show.id) if show else url_for('admin.add_show') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row">
+      <div class="col-md-6 mb-3"><label class="form-label" for="movie_id">Movie</label>
+        <select class="form-select" id="movie_id" name="movie_id" required>
+          {% for m in movies %}
+            <option value="{{ m.id }}" {% if show and show.movie_id == m.id %}selected{% endif %}>{{ m.title }}</option>
+          {% endfor %}
+        </select></div>
+      <div class="col-md-6 mb-3"><label class="form-label" for="cinema_id">Cinema</label>
+        <select class="form-select" id="cinema_id" name="cinema_id" required>
+          {% for c in cinemas %}
+            <option value="{{ c.id }}" {% if show and show.cinema_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select></div>
+    </div>
+    <div class="row">
+      <div class="col-md-4 mb-3"><label class="form-label" for="show_date">Date</label>
+        <input class="form-control" type="date" id="show_date" name="show_date"
+               value="{{ show.show_date.strftime('%Y-%m-%d') if show else '' }}" required></div>
+      <div class="col-md-4 mb-3"><label class="form-label" for="start_time">Start time</label>
+        <input class="form-control" type="time" id="start_time" name="start_time"
+               value="{{ show.start_time.strftime('%H:%M') if show else '' }}" required></div>
+      <div class="col-md-4 mb-3"><label class="form-label" for="end_time">End time</label>
+        <input class="form-control" type="time" id="end_time" name="end_time"
+               value="{{ show.end_time.strftime('%H:%M') if show and show.end_time else '' }}"></div>
+    </div>
+    <div class="mb-3"><label class="form-label" for="status">Status</label>
+      <select class="form-select" id="status" name="status">
+        <option value="ACTIVE" {% if show and show.status == 'ACTIVE' %}selected{% endif %}>Active</option>
+        <option value="INACTIVE" {% if show and show.status == 'INACTIVE' %}selected{% endif %}>Inactive</option>
+      </select></div>
+
+    {% if not show %}
+      <hr>
+      <h2 class="h6 mb-2">Ticket tiers</h2>
+      <p class="small text-secondary">Set the opening price for the tiers available in this cinema. You can change them later.</p>
+      <div id="dynamic-tiers-container">
+        <p class="text-muted small">Select a cinema to view its tiers.</p>
+      </div>
+    {% endif %}
+
+    <button class="btn btn-warning mt-3" type="submit">Save show</button>
+    <a class="btn btn-outline-light mt-3" href="{{ url_for('admin.shows') }}">Cancel</a>
+  </form>
+</div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+{% if not show %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const cinemaSelect = document.getElementById("cinema_id");
+    const container = document.getElementById("dynamic-tiers-container");
+
+    function fetchTiers() {
+        const cinemaId = cinemaSelect.value;
+        if (!cinemaId) {
+            container.innerHTML = '<p class="text-muted small">Select a cinema to view its tiers.</p>';
+            return;
+        }
+
+        fetch(`/admin/api/cinema/${cinemaId}/tiers`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.tiers.length === 0) {
+                    container.innerHTML = '<p class="text-danger small">This cinema has no seats configured. Please configure it in Cinemas first.</p>';
+                    return;
+                }
+                
+                let html = '';
+                data.tiers.forEach(tier => {
+                    const lower = tier.name.toLowerCase();
+                    html += `
+                        <div class="row align-items-end mb-2">
+                          <div class="col-md-4"><label class="form-label">${tier.name} (${tier.seats} seats)</label></div>
+                          <div class="col-md-4">
+                            <input class="form-control" type="number" step="0.01" min="0"
+                                   name="price_${lower}" placeholder="Price (₹)" required>
+                          </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            })
+            .catch(err => {
+                container.innerHTML = '<p class="text-danger small">Failed to load tiers.</p>';
+            });
+    }
+
+    cinemaSelect.addEventListener("change", fetchTiers);
+    fetchTiers(); // Initial load if a cinema is already selected
+});
+</script>
+{% endif %}
+{% endblock %}

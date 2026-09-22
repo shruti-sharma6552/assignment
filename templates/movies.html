@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Movies — CinePrice{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">Movies</h1>
+  <form class="d-flex" method="get" action="{{ url_for('customer.movies') }}">
+    <input class="form-control form-control-sm me-2" name="q" value="{{ search }}" placeholder="Search a title">
+    <button class="btn btn-sm btn-outline-light" type="submit">Search</button>
+  </form>
+</div>
+<div class="row g-3">
+  {% for movie in movies %}
+  <div class="col-6 col-md-4 col-lg-3">
+    <a class="cp-movie-card" href="{{ url_for('customer.movie_details', movie_id=movie.id) }}">
+      <div class="cp-movie-poster">
+        {% if movie.poster_url %}
+        <img src="{{ url_for('static', filename=movie.poster_url) }}" alt="{{ movie.title }} poster" loading="lazy">
+        {% else %}
+        <span class="cp-movie-poster-fallback">{{ movie.title[:1] }}</span>
+        {% endif %}
+        {% if movie.certificate %}<span class="cp-cert-badge">{{ movie.certificate }}</span>{% endif %}
+        <div class="cp-movie-overlay">
+          <h2 class="cp-movie-title">{{ movie.title }}</h2>
+          <p class="cp-movie-meta">{{ movie.genre or 'Feature' }} · {{ movie.duration }} min</p>
+        </div>
+      </div>
+      <span class="btn btn-sm btn-warning cp-movie-cta">View shows</span>
+    </a>
+  </div>
+  {% else %}
+  <div class="col-12">
+    <p class="text-secondary">Nothing matches that search.</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

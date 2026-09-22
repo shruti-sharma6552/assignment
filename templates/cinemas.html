@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Cinemas — CinePrice{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Cinemas</h1>
+<div class="row g-3">
+  {% for cinema in cinemas %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card cp-card h-100">
+        <div class="card-body">
+          <h2 class="h6 mb-1">{{ cinema.name }}</h2>
+          <p class="small text-secondary mb-1">{{ cinema.location }}, {{ cinema.city }}</p>
+          <p class="small text-secondary">{{ cinema.address or '' }}</p>
+          <a class="btn btn-sm btn-warning" href="{{ url_for('customer.shows', cinema_id=cinema.id) }}">View shows</a>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="col-12"><p class="text-secondary">No cinemas are listed yet.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}

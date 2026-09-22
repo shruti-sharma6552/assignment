@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Shows — admin{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h1 class="h4 mb-0">Shows</h1>
+  <a class="btn btn-warning btn-sm" href="{{ url_for('admin.add_show') }}">Create show</a>
+</div>
+<div class="table-responsive">
+<table class="table cp-table align-middle">
+  <thead><tr><th>Movie</th><th>Cinema</th><th>Date</th><th>Time</th><th>Tiers</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for s in shows %}
+    <tr>
+      <td>{{ s.movie.title }}</td><td>{{ s.cinema.name }}</td>
+      <td>{{ s.show_date.strftime('%d %b %Y') }}</td><td>{{ s.start_time.strftime('%I:%M %p') }}</td>
+      <td class="small">
+        {% for t in s.seat_tiers %}
+          <span class="badge {{ 'bg-danger' if t.is_sold_out else 'bg-secondary' }}">
+            {{ t.name }} ₹{{ '%.2f'|format(t.price) }} · {{ 'SOLD OUT' if t.is_sold_out else t.available_seats ~ ' left' }}
+          </span>
+        {% endfor %}
+      </td>
+      <td><span class="badge {{ 'bg-success' if s.status == 'ACTIVE' else 'bg-secondary' }}">{{ s.status }}</span></td>
+      <td class="text-end text-nowrap">
+        <a class="btn btn-sm btn-outline-light" href="{{ url_for('admin.edit_show', show_id=s.id) }}">Edit</a>
+        <a class="btn btn-sm btn-outline-warning" href="{{ url_for('admin.pricing', show_id=s.id) }}">Pricing</a>
+        <form class="d-inline" method="post" action="{{ url_for('admin.delete_show', show_id=s.id) }}"
+              onsubmit="return confirm('Remove this show?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="7" class="text-secondary">No shows yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

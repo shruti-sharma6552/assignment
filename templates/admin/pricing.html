@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Pricing — admin{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Pricing configuration</h1>
+
+<div class="card cp-card mb-4"><div class="card-body">
+  <h2 class="h6 mb-3">Convenience fee and GST</h2>
+  <form method="post" action="{{ url_for('admin.pricing') }}" class="row g-3 align-items-end">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="config">
+    <div class="col-md-4"><label class="form-label" for="convenience_fee">Convenience fee per ticket (₹)</label>
+      <input class="form-control" type="number" step="0.01" min="0" id="convenience_fee"
+             name="convenience_fee" value="{{ '%.2f'|format(config.convenience_fee) }}" required></div>
+    <div class="col-md-4"><label class="form-label" for="gst_rate">GST (%)</label>
+      <input class="form-control" type="number" step="0.01" min="0" max="100" id="gst_rate"
+             name="gst_rate" value="{{ '%.2f'|format(config.gst_rate) }}" required></div>
+    <div class="col-md-4"><button class="btn btn-warning w-100" type="submit">Save fee and tax</button></div>
+  </form>
+</div></div>
+
+<div class="card cp-card mb-3"><div class="card-body">
+  <form method="get" action="{{ url_for('admin.pricing') }}" class="row g-2 align-items-end">
+    <div class="col-md-9"><label class="form-label" for="show_id">Show</label>
+      <select class="form-select" id="show_id" name="show_id" onchange="this.form.submit()">
+        {% for s in shows %}
+          <option value="{{ s.id }}" {% if selected and selected.id == s.id %}selected{% endif %}>
+            {{ s.movie.title }} — {{ s.cinema.name }} — {{ s.show_date.strftime('%d %b %Y') }} {{ s.start_time.strftime('%I:%M %p') }}
+          </option>
+        {% endfor %}
+      </select></div>
+    <div class="col-md-3"><button class="btn btn-outline-light w-100" type="submit">Load show</button></div>
+  </form>
+</div></div>
+
+{% if selected %}
+  <div class="card cp-card mb-4"><div class="card-body">
+    <h2 class="h6 mb-3">Bulk import seat tiers</h2>
+    <form method="post" action="{{ url_for('admin.pricing') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="import_tiers">
+      <input type="hidden" name="show_id" value="{{ selected.id }}">
+      <div class="mb-3">
+        <label for="csv_data" class="form-label text-secondary small">Paste a messy price list (e.g. <code>Tier Name, Price</code>). One tier per line. Duplicates, negative prices and blank values will be cleaned up.</label>
+        <textarea class="form-control bg-dark text-light border-secondary" id="csv_data" name="csv_data" rows="4" placeholder="VIP, $100.00&#10;Silver, 50&#10;gold, 75.50"></textarea>
+      </div>
+      <button type="submit" class="btn btn-outline-warning">Import Tiers</button>
+    </form>
+  </div></div>
+
+  {% for tier in selected.seat_tiers %}
+    <div class="card cp-card mb-3"><div class="card-body">
+      <form method="post" action="{{ url_for('admin.pricing') }}" class="row g-3 align-items-end">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="tier">
+        <input type="hidden" name="tier_id" value="{{ tier.id }}">
+        <input type="hidden" name="show_id" value="{{ selected.id }}">
+        <div class="col-md-2"><label class="form-label">Tier</label>
+          <p class="form-control-plaintext mb-0">{{ tier.name }}</p></div>
+        <div class="col-md-2"><label class="form-label" for="price-{{ tier.id }}">Price (₹)</label>
+          <input class="form-control" id="price-{{ tier.id }}" type="number" step="0.01" min="0"
+                 name="price" value="{{ '%.2f'|format(tier.price) }}" required></div>
+        <div class="col-md-2"><label class="form-label" for="total-{{ tier.id }}">Total seats</label>
+          <input class="form-control" id="total-{{ tier.id }}" type="number" min="0"
+                 name="total_seats" value="{{ tier.total_seats }}" required></div>
+        <div class="col-md-2"><label class="form-label" for="avail-{{ tier.id }}">Available seats</label>
+          <input class="form-control" id="avail-{{ tier.id }}" type="number" min="0"
+                 name="available_seats" value="{{ tier.available_seats }}" required></div>
+        <div class="col-md-2"><label class="form-label" for="status-{{ tier.id }}">Status</label>
+          <select class="form-select" id="status-{{ tier.id }}" name="status">
+            <option value="ACTIVE" {% if tier.status == 'ACTIVE' %}selected{% endif %}>Active</option>
+            <option value="INACTIVE" {% if tier.status == 'INACTIVE' %}selected{% endif %}>Inactive</option>
+          </select></div>
+        <div class="col-md-2"><button class="btn btn-warning w-100" type="submit">Save tier</button></div>
+      </form>
+    </div></div>
+  {% endfor %}
+{% else %}
+  <p class="text-secondary">Create a show first, then configure its ticket tiers here.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ movie.title }} — CinePrice{% endblock %}
+{% block content %}
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="cp-movie-poster cp-movie-poster-static">
+      {% if movie.poster_url %}
+      <img src="{{ url_for('static', filename=movie.poster_url) }}" alt="{{ movie.title }} poster">
+      {% else %}
+      <span class="cp-movie-poster-fallback">{{ movie.title[:1] }}</span>
+      {% endif %}
+      {% if movie.certificate %}<span class="cp-cert-badge">{{ movie.certificate }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="col-md-9">
+    <h1 class="h3">{{ movie.title }}</h1>
+    <p class="text-secondary">
+      {{ movie.language }} · {{ movie.duration }} min{% if movie.genre %} · {{ movie.genre }}{% endif %}
+    </p>
+    <p>{{ movie.description or 'No synopsis has been added for this title.' }}</p>
+  </div>
+</div>
+
+<h2 class="h5 mb-3">Choose a cinema and show</h2>
+{% for cinema, show_list in by_cinema.items() %}
+<div class="card cp-card mb-3">
+  <div class="card-body">
+    <h3 class="h6 mb-1">{{ cinema.name }}</h3>
+    <p class="small text-secondary">{{ cinema.location }}, {{ cinema.city }}</p>
+    <div class="d-flex flex-wrap gap-2">
+      {% for show in show_list %}
+      <a class="btn btn-outline-warning btn-sm" href="{{ url_for('customer.ticket_selection', show_id=show.id) }}">
+        {{ show.show_date.strftime('%d %b') }} · {{ show.start_time.strftime('%I:%M %p') }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<p class="text-secondary">No upcoming shows for this movie right now.</p>
+{% endfor %}
+{% endblock %}

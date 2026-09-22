@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Cinemas — admin{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h1 class="h4 mb-0">Cinemas</h1>
+  <a class="btn btn-warning btn-sm" href="{{ url_for('admin.add_cinema') }}">Add cinema</a>
+</div>
+<table class="table cp-table align-middle">
+  <thead><tr><th>Name</th><th>Location</th><th>City</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for c in cinemas %}
+    <tr>
+      <td>{{ c.name }}</td><td>{{ c.location }}</td><td>{{ c.city }}</td>
+      <td><span class="badge {{ 'bg-success' if c.status == 'ACTIVE' else 'bg-secondary' }}">{{ c.status }}</span></td>
+      <td class="text-end">
+        <a class="btn btn-sm btn-outline-light" href="{{ url_for('admin.edit_cinema', cinema_id=c.id) }}">Edit</a>
+        <form class="d-inline" method="post" action="{{ url_for('admin.delete_cinema', cinema_id=c.id) }}"
+              onsubmit="return confirm('Remove {{ c.name }}?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="text-secondary">No cinemas yet. Add the first one.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

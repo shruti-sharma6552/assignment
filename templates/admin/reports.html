@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Reports — admin{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Reports</h1>
+
+<div class="card cp-card mb-4"><div class="card-body">
+  <h2 class="h6 mb-3">Revenue by date</h2>
+  <table class="table cp-table mb-0">
+    <thead><tr><th>Date</th><th class="text-end">Bookings</th><th class="text-end">Tickets</th>
+        <th class="text-end">Revenue</th><th class="text-end">GST</th></tr></thead>
+    <tbody>
+      {% for row in revenue_report %}
+        <tr><td>{{ row.day }}</td><td class="text-end">{{ row.bookings }}</td>
+            <td class="text-end">{{ row.tickets }}</td>
+            <td class="text-end">₹{{ '%.2f'|format(row.revenue) }}</td>
+            <td class="text-end">₹{{ '%.2f'|format(row.gst) }}</td></tr>
+      {% else %}
+        <tr><td colspan="5" class="text-secondary">No revenue recorded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+<div class="card cp-card mb-4"><div class="card-body">
+  <h2 class="h6 mb-3">Ticket tiers</h2>
+  <table class="table cp-table mb-0">
+    <thead><tr><th>Tier</th><th class="text-end">Tickets sold</th><th class="text-end">Revenue</th>
+        <th class="text-end">Seats remaining</th></tr></thead>
+    <tbody>
+      {% for row in tier_report %}
+        <tr><td>{{ row.tier }}</td><td class="text-end">{{ row.tickets }}</td>
+            <td class="text-end">₹{{ '%.2f'|format(row.revenue) }}</td>
+            <td class="text-end">{{ row.remaining }}</td></tr>
+      {% else %}
+        <tr><td colspan="4" class="text-secondary">No tiers configured.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+<div class="card cp-card"><div class="card-body">
+  <h2 class="h6 mb-3">Movies</h2>
+  <table class="table cp-table mb-0">
+    <thead><tr><th>Movie</th><th class="text-end">Bookings</th><th class="text-end">Tickets sold</th>
+        <th class="text-end">Revenue</th></tr></thead>
+    <tbody>
+      {% for row in movie_report %}
+        <tr><td>{{ row.movie }}</td><td class="text-end">{{ row.bookings }}</td>
+            <td class="text-end">{{ row.tickets }}</td>
+            <td class="text-end">₹{{ '%.2f'|format(row.revenue) }}</td></tr>
+      {% else %}
+        <tr><td colspan="4" class="text-secondary">No bookings yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

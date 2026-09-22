@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Admin dashboard — CinePrice{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Dashboard</h1>
+
+<div class="row g-3 mb-4">
+  {% set cards = [
+  ('Cinemas', stats.cinemas), ('Movies', stats.movies), ('Shows', stats.shows),
+  ('Bookings', stats.bookings), ('Tickets sold', stats.tickets)
+  ] %}
+  {% for label, value in cards %}
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card cp-stat h-100">
+      <div class="card-body">
+        <p class="cp-stat-value">{{ value }}</p>
+        <p class="cp-stat-label">{{ label }}</p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card cp-stat h-100">
+      <div class="card-body">
+        <p class="cp-stat-value">₹{{ '%.2f'|format(stats.revenue) }}</p>
+        <p class="cp-stat-label">Total revenue</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card cp-card mb-4">
+  <div class="card-body">
+    <p class="mb-0">Today's revenue: <strong>₹{{ '%.2f'|format(stats.today_revenue) }}</strong></p>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-6">
+    <div class="card cp-card">
+      <div class="card-body">
+        <h2 class="h6">Revenue by date</h2><canvas id="revenueChart" height="170"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card cp-card">
+      <div class="card-body">
+        <h2 class="h6">Tickets sold by tier</h2><canvas id="tierChart" height="170"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card cp-card">
+      <div class="card-body">
+        <h2 class="h6">Bookings by movie</h2><canvas id="movieChart" height="170"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card cp-card">
+      <div class="card-body">
+        <h2 class="h6">Show occupancy (%)</h2><canvas id="occupancyChart" height="170"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card cp-card">
+  <div class="card-body">
+    <h2 class="h6 mb-3">Recent bookings</h2>
+    <div class="table-responsive">
+      <table class="table cp-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Booking</th>
+            <th>Customer</th>
+            <th>Movie</th>
+            <th>Tier</th>
+            <th class="text-end">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in recent %}
+          <tr>
+            <td>{{ b.booking_id }}</td>
+            <td>{{ b.user.name }}</td>
+            <td>{{ b.show.movie.title }}</td>
+            <td>{{ b.item.seat_tier if b.item else '—' }}</td>
+            <td class="text-end">₹{{ '%.2f'|format(b.total_amount) }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="text-secondary">No bookings yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  const charts = {{ charts | tojson }};
+  const grid = { color: 'rgba(0, 97, 153, 0.08)' };
+  const tickColor = '#4c7996';
+  const opts = {
+    responsive: true, plugins: { legend: { display: false } },
+    scales: {
+      x: { grid, ticks: { color: tickColor } },
+      y: { grid, ticks: { color: tickColor }, beginAtZero: true }
+    }
+  };
+
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+      labels: charts.revenue_labels,
+      datasets: [{
+        data: charts.revenue_values, borderColor: '#006199',
+        backgroundColor: 'rgba(138, 207, 248, 0.35)', tension: 0.35, fill: true,
+        pointBackgroundColor: '#ffd444', pointBorderColor: '#006199', pointRadius: 4
+      }]
+    },
+    options: opts
+  });
+
+  new Chart(document.getElementById('tierChart'), {
+    type: 'bar',
+    data: {
+      labels: charts.tier_labels,
+      datasets: [{
+        data: charts.tier_values, backgroundColor: '#ffd444',
+        borderRadius: 6, hoverBackgroundColor: '#f4eb6c'
+      }]
+    },
+    options: opts
+  });
+
+  new Chart(document.getElementById('movieChart'), {
+    type: 'bar',
+    data: {
+      labels: charts.movie_labels,
+      datasets: [{
+        data: charts.movie_values, backgroundColor: '#8acff8',
+        borderRadius: 6, hoverBackgroundColor: '#006199'
+      }]
+    },
+    options: { ...opts, indexAxis: 'y' }
+  });
+
+  new Chart(document.getElementById('occupancyChart'), {
+    type: 'bar',
+    data: {
+      labels: charts.occupancy_labels,
+      datasets: [{
+        data: charts.occupancy_values, backgroundColor: '#006199',
+        borderRadius: 6, hoverBackgroundColor: '#0080c9'
+      }]
+    },
+    options: {
+      ...opts, scales: {
+        x: { grid, ticks: { color: tickColor } },
+        y: { grid, ticks: { color: tickColor }, beginAtZero: true, max: 100 }
+      }
+    }
+  });
+</script>
+{% endblock %}

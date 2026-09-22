@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Festival offers — admin{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Festival offers</h1>
+
+<div class="card cp-card mb-4"><div class="card-body">
+  <h2 class="h6 mb-3">Add an offer</h2>
+  <form method="post" action="{{ url_for('admin.discounts') }}" class="row g-3 align-items-end">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-3"><label class="form-label" for="name">Festival name</label>
+      <input class="form-control" id="name" name="name" required></div>
+    <div class="col-md-2"><label class="form-label" for="amount">Flat discount (₹)</label>
+      <input class="form-control" type="number" step="0.01" min="0" id="amount" name="amount" required></div>
+    <div class="col-md-2"><label class="form-label" for="start_date">Starts</label>
+      <input class="form-control" type="date" id="start_date" name="start_date" required></div>
+    <div class="col-md-2"><label class="form-label" for="end_date">Ends</label>
+      <input class="form-control" type="date" id="end_date" name="end_date" required></div>
+    <div class="col-md-1 form-check ms-2 mb-2">
+      <input class="form-check-input" type="checkbox" id="active" name="active" checked>
+      <label class="form-check-label" for="active">Active</label></div>
+    <div class="col-md-1"><button class="btn btn-warning w-100" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<table class="table cp-table align-middle">
+  <thead><tr><th>Name</th><th class="text-end">Amount</th><th>Starts</th><th>Ends</th><th>State</th><th></th></tr></thead>
+  <tbody>
+  {% for d in discounts %}
+    <tr>
+      <td>{{ d.name }}</td>
+      <td class="text-end">₹{{ '%.2f'|format(d.amount) }}</td>
+      <td>{{ d.start_date.strftime('%d %b %Y') }}</td>
+      <td>{{ d.end_date.strftime('%d %b %Y') }}</td>
+      <td>
+        {% if d.is_valid_on(today) %}<span class="badge bg-success">Running</span>
+        {% elif not d.active %}<span class="badge bg-secondary">Inactive</span>
+        {% elif d.end_date < today %}<span class="badge bg-danger">Expired</span>
+        {% else %}<span class="badge bg-info text-dark">Scheduled</span>{% endif %}
+      </td>
+      <td class="text-end">
+        <form class="d-inline" method="post" action="{{ url_for('admin.delete_discount', discount_id=d.id) }}"
+              onsubmit="return confirm('Remove {{ d.name }}?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6" class="text-secondary">No festival offers configured.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

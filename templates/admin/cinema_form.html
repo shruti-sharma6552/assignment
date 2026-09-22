@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit cinema' if cinema else 'Add cinema' }} — admin{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-7">
+<div class="card cp-card"><div class="card-body p-4">
+  <h1 class="h5 mb-3">{{ 'Edit cinema' if cinema else 'Add cinema' }}</h1>
+  <form method="post" action="{{ url_for('admin.edit_cinema', cinema_id=cinema.id) if cinema else url_for('admin.add_cinema') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="mb-3"><label class="form-label" for="name">Name</label>
+      <input class="form-control" id="name" name="name" value="{{ cinema.name if cinema else '' }}" required></div>
+    <div class="row">
+      <div class="col-md-6 mb-3"><label class="form-label" for="location">Location</label>
+        <input class="form-control" id="location" name="location" value="{{ cinema.location if cinema else '' }}"></div>
+      <div class="col-md-6 mb-3"><label class="form-label" for="city">City</label>
+        <input class="form-control" id="city" name="city" value="{{ cinema.city if cinema else '' }}" required></div>
+    </div>
+    <div class="mb-3"><label class="form-label" for="address">Address</label>
+      <input class="form-control" id="address" name="address" value="{{ cinema.address if cinema else '' }}"></div>
+    <div class="mb-3"><label class="form-label" for="screen_direction">Screen Direction</label>
+      <select class="form-select" id="screen_direction" name="screen_direction">
+        <option value="top" {% if cinema and cinema.screen_direction == 'top' %}selected{% endif %}>Top</option>
+        <option value="bottom" {% if cinema and cinema.screen_direction == 'bottom' %}selected{% endif %}>Bottom</option>
+        <option value="left" {% if cinema and cinema.screen_direction == 'left' %}selected{% endif %}>Left</option>
+        <option value="right" {% if cinema and cinema.screen_direction == 'right' %}selected{% endif %}>Right</option>
+      </select></div>
+    
+    <hr>
+    <h2 class="h6 mb-2">Seat Configurations</h2>
+    <p class="small text-secondary">Set Total Seats to 0 if a tier is not available. The second box is Seats Per Row.</p>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label fw-bold text-primary">Normal</label>
+        <div class="input-group">
+          <input class="form-control" type="number" id="normal_seats" name="normal_seats" value="{{ cinema.normal_seats if cinema else 0 }}" min="0" placeholder="Total" required>
+          <span class="input-group-text text-secondary" title="Seats per row">/ row</span>
+          <input class="form-control" type="number" id="normal_row_length" name="normal_row_length" value="{{ cinema.normal_row_length if cinema else 15 }}" min="1" required>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label fw-bold text-primary">Silver</label>
+        <div class="input-group">
+          <input class="form-control" type="number" id="silver_seats" name="silver_seats" value="{{ cinema.silver_seats if cinema else 0 }}" min="0" placeholder="Total" required>
+          <span class="input-group-text text-secondary" title="Seats per row">/ row</span>
+          <input class="form-control" type="number" id="silver_row_length" name="silver_row_length" value="{{ cinema.silver_row_length if cinema else 15 }}" min="1" required>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label fw-bold text-primary">Gold</label>
+        <div class="input-group">
+          <input class="form-control" type="number" id="gold_seats" name="gold_seats" value="{{ cinema.gold_seats if cinema else 0 }}" min="0" placeholder="Total" required>
+          <span class="input-group-text text-secondary" title="Seats per row">/ row</span>
+          <input class="form-control" type="number" id="gold_row_length" name="gold_row_length" value="{{ cinema.gold_row_length if cinema else 15 }}" min="1" required>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label fw-bold text-primary">Diamond</label>
+        <div class="input-group">
+          <input class="form-control" type="number" id="diamond_seats" name="diamond_seats" value="{{ cinema.diamond_seats if cinema else 0 }}" min="0" placeholder="Total" required>
+          <span class="input-group-text text-secondary" title="Seats per row">/ row</span>
+          <input class="form-control" type="number" id="diamond_row_length" name="diamond_row_length" value="{{ cinema.diamond_row_length if cinema else 15 }}" min="1" required>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label fw-bold text-primary">Platinum</label>
+        <div class="input-group">
+          <input class="form-control" type="number" id="platinum_seats" name="platinum_seats" value="{{ cinema.platinum_seats if cinema else 0 }}" min="0" placeholder="Total" required>
+          <span class="input-group-text text-secondary" title="Seats per row">/ row</span>
+          <input class="form-control" type="number" id="platinum_row_length" name="platinum_row_length" value="{{ cinema.platinum_row_length if cinema else 15 }}" min="1" required>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label fw-bold text-primary">Recliner</label>
+        <div class="input-group">
+          <input class="form-control" type="number" id="recliner_seats" name="recliner_seats" value="{{ cinema.recliner_seats if cinema else 0 }}" min="0" placeholder="Total" required>
+          <span class="input-group-text text-secondary" title="Seats per row">/ row</span>
+          <input class="form-control" type="number" id="recliner_row_length" name="recliner_row_length" value="{{ cinema.recliner_row_length if cinema else 15 }}" min="1" required>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="mb-3"><label class="form-label" for="status">Status</label>
+      <select class="form-select" id="status" name="status">
+        <option value="ACTIVE" {% if cinema and cinema.status == 'ACTIVE' %}selected{% endif %}>Active</option>
+        <option value="INACTIVE" {% if cinema and cinema.status == 'INACTIVE' %}selected{% endif %}>Inactive</option>
+      </select></div>
+    <button class="btn btn-warning" type="submit">Save cinema</button>
+    <a class="btn btn-outline-light" href="{{ url_for('admin.cinemas') }}">Cancel</a>
+  </form>
+</div></div></div></div>
+{% endblock %}

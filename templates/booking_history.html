@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}My bookings — CinePrice{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">My bookings</h1>
+<div class="table-responsive">
+<table class="table cp-table align-middle">
+  <thead>
+    <tr><th>Booking ID</th><th>Movie</th><th>Cinema</th><th>Show</th><th>Tier</th>
+        <th class="text-end">Qty</th><th class="text-end">Amount</th><th>Status</th><th>Booked on</th></tr>
+  </thead>
+  <tbody>
+  {% for b in bookings %}
+    <tr class="cp-row-link" onclick="window.location='{{ url_for('booking.invoice', booking_pk=b.id) }}'">
+      <td><a href="{{ url_for('booking.invoice', booking_pk=b.id) }}">{{ b.booking_id }}</a></td>
+      <td>{{ b.show.movie.title }}</td>
+      <td>{{ b.show.cinema.name }}</td>
+      <td>{{ b.show.show_date.strftime('%d %b %Y') }} {{ b.show.start_time.strftime('%I:%M %p') }}</td>
+      <td>{{ b.item.seat_tier if b.item else '—' }}</td>
+      <td class="text-end">{{ b.item.quantity if b.item else 0 }}</td>
+      <td class="text-end">₹{{ '%.2f'|format(b.total_amount) }}</td>
+      <td><span class="badge bg-success">{{ b.status }}</span></td>
+      <td>{{ b.created_at.strftime('%d %b %Y') }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="9" class="text-secondary">You have not booked anything yet.
+      <a href="{{ url_for('customer.movies') }}">Browse movies</a>.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

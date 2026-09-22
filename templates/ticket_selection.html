@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+{% block title %}Select tickets — CinePrice{% endblock %}
+{% block content %}
+<style>
+  .seat {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    background-color: #222;
+    color: #eee;
+    transition: all 0.2s;
+  }
+  .seat.available:hover {
+    background-color: #444;
+    border-color: #ffc107;
+  }
+  .seat.selected {
+    background-color: #ffc107;
+    color: #000;
+    border-color: #ffc107;
+  }
+  .seat.booked {
+    background-color: #555;
+    color: #888;
+    cursor: not-allowed;
+    border-color: #333;
+    opacity: 0.5;
+  }
+  .screen-container {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+  }
+  .screen {
+    background: linear-gradient(to bottom, #555, #222);
+    width: 80%;
+    height: 40px;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    box-shadow: 0 -10px 20px rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 5px;
+    font-size: 12px;
+    color: #888;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+  .screen.bottom {
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    background: linear-gradient(to top, #555, #222);
+    box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+    align-items: flex-start;
+    padding-top: 5px;
+    padding-bottom: 0;
+  }
+  .screen.left {
+    width: 40px;
+    height: 300px;
+    border-radius: 50% 0 0 50% / 100% 0 0 100%;
+    background: linear-gradient(to right, #555, #222);
+    box-shadow: -10px 0 20px rgba(255, 255, 255, 0.1);
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 5px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+  .screen.right {
+    width: 40px;
+    height: 300px;
+    border-radius: 0 50% 50% 0 / 0 100% 100% 0;
+    background: linear-gradient(to left, #555, #222);
+    box-shadow: 10px 0 20px rgba(255, 255, 255, 0.1);
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 5px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+  .seat-map-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: auto;
+  }
+  .seat-map-wrapper.dir-left {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+  .seat-map-wrapper.dir-right {
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: center;
+  }
+  .seat-map-wrapper.dir-bottom {
+    flex-direction: column-reverse;
+  }
+  .seats-container {
+    padding: 20px;
+  }
+</style>
+
+<h1 class="h4 mb-1">{{ show.movie.title }}</h1>
+<p class="text-secondary">
+  {{ show.cinema.name }} · {{ show.show_date.strftime('%d %b %Y') }} · {{ show.start_time.strftime('%I:%M %p') }}
+</p>
+
+<form method="post" action="{{ url_for('booking.price_breakdown', show_id=show.id) }}" id="ticket-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="seat_tier_id" id="seat_tier_id" value="">
+  <input type="hidden" name="quantity" id="quantity" value="0">
+  <input type="hidden" name="selected_seats" id="selected_seats" value="">
+
+  <div class="card cp-card mb-4">
+    <div class="card-body overflow-auto">
+      
+      {% set direction = show.cinema.screen_direction | default('top') %}
+      <div class="seat-map-wrapper dir-{{ direction }}">
+        
+        <div class="screen-container {% if direction in ['left', 'right'] %}mx-4{% else %}w-100{% endif %}">
+          <div class="screen {{ direction }}">Screen</div>
+        </div>
+
+        <div class="seats-container">
+          {% for tier in show.seat_tiers %}
+            {% set row_length = show.cinema.get_row_length(tier.name) %}
+            <div class="tier-section mb-5" data-tier-id="{{ tier.id }}" data-tier-name="{{ tier.name }}" data-price="{{ tier.price }}" data-available="{{ tier.is_selectable | lower }}">
+              <h4 class="text-center h6 mb-3 text-warning">{{ tier.name | upper }} (₹{{ '%.2f'|format(tier.price) }})</h4>
+              
+              {% set rows = (tier.total_seats // row_length) + (1 if tier.total_seats % row_length > 0 else 0) %}
+              {% for r in range(rows) %}
+                <div class="seat-row d-flex justify-content-center gap-2 mb-2">
+                  <div class="row-label d-flex align-items-center justify-content-end fw-bold text-secondary me-2" style="width:20px">
+                    {{ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[r % 26] }}
+                  </div>
+                  
+                  {% for s in range(row_length) %}
+                    {% set seat_num = r * row_length + s + 1 %}
+                    {% if seat_num <= tier.total_seats %}
+                      {% set seat_id = tier.name ~ "-" ~ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[r % 26] ~ (s + 1) %}
+                      {% set is_booked = seat_id in booked_seats or not tier.is_selectable %}
+                      
+                      <div class="seat {% if is_booked %}booked{% else %}available{% endif %}" 
+                           data-seat-id="{{ seat_id }}" 
+                           data-tier-id="{{ tier.id }}"
+                           title="{{ seat_id }}">
+                        {{ s + 1 }}
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                  
+                  <div class="row-label d-flex align-items-center ms-2 fw-bold text-secondary" style="width:20px">
+                    {{ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[r % 26] }}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card cp-card sticky-bottom bottom-0 mb-4" style="z-index: 100;">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Selected Seats</label>
+          <div id="selected-seats-display" class="form-control bg-dark text-light" style="min-height: 38px; height: auto;">None</div>
+        </div>
+        <div class="col-md-5">
+          <label class="form-label" for="membership_id">Membership</label>
+          <select class="form-select" id="membership_id" name="membership_id">
+            <option value="">No membership</option>
+            {% for m in memberships %}
+              <option value="{{ m.id }}"
+                      data-percentage="{{ m.discount_percentage }}"
+                      data-cap="{{ m.discount_cap }}"
+                      {% if m.id == default_membership_id %}selected{% endif %}>
+                {{ m.name }} — {{ m.discount_percentage }}% up to ₹{{ '%.2f'|format(m.discount_cap) }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <button class="btn btn-warning w-100" type="submit" id="continue-btn" disabled>Book Now (₹0.00)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.CINEPRICE_CONFIG = {
+    festivalDiscount: parseFloat("{{ festival.amount if festival else 0 }}"),
+    convenienceFee: parseFloat("{{ config.convenience_fee }}"),
+    gstRate: parseFloat("{{ config.gst_rate }}")
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const seats = document.querySelectorAll('.seat.available');
+    const seatTierInput = document.getElementById('seat_tier_id');
+    const quantityInput = document.getElementById('quantity');
+    const selectedSeatsInput = document.getElementById('selected_seats');
+    const displayDiv = document.getElementById('selected-seats-display');
+    const continueBtn = document.getElementById('continue-btn');
+    const membershipSelect = document.getElementById('membership_id');
+    
+    let selectedSeats = [];
+    let currentTierId = null;
+    let currentTierPrice = 0;
+
+    function updatePrice() {
+      if (selectedSeats.length === 0) {
+        continueBtn.textContent = 'Book Now (₹0.00)';
+        continueBtn.disabled = true;
+        return;
+      }
+      
+      const qty = selectedSeats.length;
+      let baseAmount = qty * currentTierPrice;
+      
+      let memberDiscount = 0;
+      if (membershipSelect.value) {
+        const option = membershipSelect.options[membershipSelect.selectedIndex];
+        const pct = parseFloat(option.getAttribute('data-percentage') || 0);
+        const cap = parseFloat(option.getAttribute('data-cap') || 0);
+        let calcDiscount = baseAmount * (pct / 100.0);
+        if (calcDiscount > cap) calcDiscount = cap;
+        memberDiscount = calcDiscount;
+      }
+      
+      let festivalDiscount = window.CINEPRICE_CONFIG.festivalDiscount;
+      if (festivalDiscount > baseAmount - memberDiscount) {
+        festivalDiscount = baseAmount - memberDiscount;
+      }
+      
+      let discounted = baseAmount - memberDiscount - festivalDiscount;
+      if (discounted < 0) discounted = 0;
+      
+      const fee = window.CINEPRICE_CONFIG.convenienceFee * qty;
+      const taxable = discounted + fee;
+      const gst = taxable * (window.CINEPRICE_CONFIG.gstRate / 100.0);
+      const total = taxable + gst;
+      
+      continueBtn.textContent = `Book Now (₹${total.toFixed(2)})`;
+      continueBtn.disabled = false;
+    }
+
+    membershipSelect.addEventListener('change', updatePrice);
+
+    seats.forEach(seat => {
+      seat.addEventListener('click', function() {
+        const seatId = this.getAttribute('data-seat-id');
+        const tierId = this.getAttribute('data-tier-id');
+        const tierSection = this.closest('.tier-section');
+        const tierPrice = parseFloat(tierSection.getAttribute('data-price'));
+
+        if (this.classList.contains('selected')) {
+          this.classList.remove('selected');
+          selectedSeats = selectedSeats.filter(s => s !== seatId);
+          if (selectedSeats.length === 0) {
+            currentTierId = null;
+          }
+        } else {
+          // If a different tier is clicked, clear previous selection
+          if (currentTierId && currentTierId !== tierId) {
+            alert('You can only select seats from one tier at a time. Previous selection cleared.');
+            document.querySelectorAll('.seat.selected').forEach(s => s.classList.remove('selected'));
+            selectedSeats = [];
+          }
+          
+          if (selectedSeats.length >= 10) {
+            alert('You can only book up to 10 seats at once.');
+            return;
+          }
+          
+          this.classList.add('selected');
+          selectedSeats.push(seatId);
+          currentTierId = tierId;
+          currentTierPrice = tierPrice;
+        }
+
+        // Update inputs
+        seatTierInput.value = currentTierId || '';
+        quantityInput.value = selectedSeats.length;
+        selectedSeatsInput.value = selectedSeats.join(',');
+        
+        displayDiv.textContent = selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None';
+        
+        updatePrice();
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Invoice {{ booking.booking_id }} — CinePrice{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card cp-card cp-invoice" id="invoice">
+      <div class="card-body p-4">
+        <div class="text-center mb-3">
+          <h1 class="h5 mb-0">CINEPRICE</h1>
+          <p class="text-secondary small mb-0">Booking invoice</p>
+        </div>
+        <hr>
+        <dl class="row small">
+          <dt class="col-5">Booking ID</dt><dd class="col-7">{{ booking.booking_id }}</dd>
+          <dt class="col-5">Invoice number</dt><dd class="col-7">{{ invoice.invoice_number if invoice else '—' }}</dd>
+          <dt class="col-5">Customer</dt><dd class="col-7">{{ customer.name }}</dd>
+          <dt class="col-5">Movie</dt><dd class="col-7">{{ movie.title }}</dd>
+          <dt class="col-5">Cinema</dt><dd class="col-7">{{ cinema.name }}, {{ cinema.city }}</dd>
+          <dt class="col-5">Show date</dt><dd class="col-7">{{ show.show_date.strftime('%d %b %Y') }}</dd>
+          <dt class="col-5">Show time</dt><dd class="col-7">{{ show.start_time.strftime('%I:%M %p') }}</dd>
+          <dt class="col-5">Ticket type</dt><dd class="col-7">{{ item.seat_tier }} @ ₹{{ '%.2f'|format(item.ticket_price_at_booking) }}</dd>
+          <dt class="col-5">Quantity</dt><dd class="col-7">{{ item.quantity }}</dd>
+          <dt class="col-5">Booked on</dt><dd class="col-7">{{ booking.created_at.strftime('%d %b %Y, %I:%M %p') }}</dd>
+        </dl>
+        <hr>
+        <table class="table cp-table">
+          <tbody>
+            <tr><td>Ticket amount</td><td class="text-end">₹{{ '%.2f'|format(item.base_amount) }}</td></tr>
+            <tr><td>Festival discount{% if item.festival_name %} ({{ item.festival_name }}){% endif %}</td>
+                <td class="text-end cp-minus">-₹{{ '%.2f'|format(item.festival_discount) }}</td></tr>
+            <tr><td>Membership discount{% if item.membership_name %} ({{ item.membership_name }}){% endif %}</td>
+                <td class="text-end cp-minus">-₹{{ '%.2f'|format(item.member_discount) }}</td></tr>
+            <tr><td>Convenience fee</td><td class="text-end">₹{{ '%.2f'|format(item.convenience_fee) }}</td></tr>
+            <tr><td>GST ({{ '%.2f'|format(item.gst_rate) }}%)</td><td class="text-end">₹{{ '%.2f'|format(item.gst_amount) }}</td></tr>
+            <tr class="cp-total"><td>Total</td><td class="text-end">₹{{ '%.2f'|format(item.final_amount) }}</td></tr>
+          </tbody>
+        </table>
+        <p class="small text-secondary text-center mb-0">
+          Prices shown are the ones that applied when this booking was made and never change.
+        </p>
+      </div>
+    </div>
+    <div class="d-flex gap-2 mt-3 cp-no-print">
+      <button class="btn btn-warning" onclick="window.print()">Print invoice</button>
+      <a class="btn btn-outline-light" href="{{ url_for('booking.my_bookings') }}">Back to my bookings</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

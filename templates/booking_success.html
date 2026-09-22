@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Booking confirmed — CinePrice{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7 text-center">
+    <div class="card cp-card">
+      <div class="card-body p-5">
+        <div class="cp-tick">✓</div>
+        <h1 class="h4 mt-3">Booking confirmed</h1>
+        <p class="text-secondary">Reference {{ booking.booking_id }}</p>
+        <p class="cp-price">₹{{ '%.2f'|format(booking.total_amount) }}</p>
+        <p>{{ item.quantity }} × {{ item.seat_tier }} for {{ movie.title }} at {{ cinema.name }},
+           {{ show.show_date.strftime('%d %b %Y') }} {{ show.start_time.strftime('%I:%M %p') }}.</p>
+        <div class="d-flex gap-2 justify-content-center mt-4">
+          <a class="btn btn-warning" href="{{ url_for('booking.invoice', booking_pk=booking.id) }}">View invoice</a>
+          <a class="btn btn-outline-light" href="{{ url_for('booking.my_bookings') }}">My bookings</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

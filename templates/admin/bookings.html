@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Bookings — admin{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h1 class="h4 mb-0">Bookings</h1>
+  <form class="d-flex" method="get" action="{{ url_for('admin.bookings') }}">
+    <input class="form-control form-control-sm me-2" name="q" value="{{ search }}" placeholder="Booking ID">
+    <button class="btn btn-sm btn-outline-light" type="submit">Find</button>
+  </form>
+</div>
+<div class="table-responsive">
+<table class="table cp-table align-middle">
+  <thead><tr><th>Booking</th><th>Customer</th><th>Movie</th><th>Cinema</th><th>Show</th><th>Tier</th>
+      <th class="text-end">Qty</th><th class="text-end">GST</th><th class="text-end">Total</th><th></th></tr></thead>
+  <tbody>
+  {% for b in bookings %}
+    <tr>
+      <td>{{ b.booking_id }}</td><td>{{ b.user.name }}</td><td>{{ b.show.movie.title }}</td>
+      <td>{{ b.show.cinema.name }}</td>
+      <td>{{ b.show.show_date.strftime('%d %b') }} {{ b.show.start_time.strftime('%I:%M %p') }}</td>
+      <td>{{ b.item.seat_tier if b.item else '—' }}</td>
+      <td class="text-end">{{ b.item.quantity if b.item else 0 }}</td>
+      <td class="text-end">₹{{ '%.2f'|format(b.item.gst_amount if b.item else 0) }}</td>
+      <td class="text-end">₹{{ '%.2f'|format(b.total_amount) }}</td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-light" href="{{ url_for('booking.invoice', booking_pk=b.id) }}">Invoice</a></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="10" class="text-secondary">No bookings found.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

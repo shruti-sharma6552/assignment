@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}CinePrice — book cinema tickets{% endblock %}
+{% block content %}
+<section class="cp-hero mb-4">
+  <h1>Pick a seat. See the exact price.</h1>
+  <p class="mb-0">Every fee, discount and tax is shown line by line before you pay a rupee.</p>
+  {% if festival %}
+  <span class="badge cp-badge-festival mt-3">{{ festival.name }} — flat ₹{{ '%.2f'|format(festival.amount) }} off</span>
+  {% endif %}
+</section>
+
+<h2 class="h5 mb-3">Now showing</h2>
+<div class="row g-3 mb-4">
+  {% for movie in movies %}
+  <div class="col-6 col-md-4 col-lg-3">
+    <a class="cp-movie-card" href="{{ url_for('customer.movie_details', movie_id=movie.id) }}">
+      <div class="cp-movie-poster">
+        {% if movie.poster_url %}
+        <img src="{{ url_for('static', filename=movie.poster_url) }}" alt="{{ movie.title }} poster" loading="lazy">
+        {% else %}
+        <span class="cp-movie-poster-fallback">{{ movie.title[:1] }}</span>
+        {% endif %}
+        {% if movie.certificate %}<span class="cp-cert-badge">{{ movie.certificate }}</span>{% endif %}
+        <div class="cp-movie-overlay">
+          <h3 class="cp-movie-title">{{ movie.title }}</h3>
+          <p class="cp-movie-meta">{{ movie.language }} · {{ movie.duration }} min</p>
+        </div>
+      </div>
+      <span class="btn btn-sm btn-warning cp-movie-cta">View shows</span>
+    </a>
+  </div>
+  {% else %}
+  <div class="col-12">
+    <p class="text-secondary">No movies are listed yet. An admin can add them from the dashboard.</p>
+  </div>
+  {% endfor %}
+</div>
+
+<h2 class="h5 mb-3">Cinemas</h2>
+<div class="row g-3">
+  {% for cinema in cinemas %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card cp-card h-100">
+      <div class="card-body">
+        <h3 class="h6 mb-1">{{ cinema.name }}</h3>
+        <p class="small text-secondary mb-2">{{ cinema.location }}, {{ cinema.city }}</p>
+        <a class="btn btn-sm btn-outline-light" href="{{ url_for('customer.shows', cinema_id=cinema.id) }}">See today's
+          shows</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

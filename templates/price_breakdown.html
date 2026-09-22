@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Price breakdown — CinePrice{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card cp-card">
+      <div class="card-body p-4">
+        <h1 class="h5 mb-1">Price breakdown</h1>
+        <p class="text-secondary small">
+          {{ show.movie.title }} · {{ show.cinema.name }} ·
+          {{ show.show_date.strftime('%d %b %Y') }} {{ show.start_time.strftime('%I:%M %p') }}
+        </p>
+
+        <p class="cp-selection">{{ quantity }} × {{ seat_tier.name }} ticket at ₹{{ '%.2f'|format(breakdown.ticket_price) }}</p>
+        {% if selected_seats %}
+        <p class="text-secondary small">Seats: {{ selected_seats }}</p>
+        {% endif %}
+
+        <table class="table cp-table">
+          <tbody>
+            <tr><td>Ticket amount</td><td class="text-end">₹{{ '%.2f'|format(breakdown.base_amount) }}</td></tr>
+            <tr><td>Festival discount{% if breakdown.festival_name %} ({{ breakdown.festival_name }}){% endif %}</td>
+                <td class="text-end cp-minus">-₹{{ '%.2f'|format(breakdown.festival_discount) }}</td></tr>
+            <tr><td>Member discount{% if breakdown.membership_name %} ({{ breakdown.membership_name }}){% endif %}</td>
+                <td class="text-end cp-minus">-₹{{ '%.2f'|format(breakdown.member_discount) }}</td></tr>
+            <tr><td>Amount after discounts</td><td class="text-end">₹{{ '%.2f'|format(breakdown.discounted_amount) }}</td></tr>
+            <tr><td>Convenience fee</td><td class="text-end">₹{{ '%.2f'|format(breakdown.convenience_fee) }}</td></tr>
+            <tr><td>Taxable amount</td><td class="text-end">₹{{ '%.2f'|format(breakdown.taxable_amount) }}</td></tr>
+            <tr><td>GST ({{ '%.2f'|format(breakdown.gst_rate) }}%)</td><td class="text-end">₹{{ '%.2f'|format(breakdown.gst_amount) }}</td></tr>
+            <tr class="cp-total"><td>Total</td><td class="text-end">₹{{ '%.2f'|format(breakdown.final_amount) }}</td></tr>
+          </tbody>
+        </table>
+
+        <form method="post" action="{{ url_for('booking.create') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="seat_tier_id" value="{{ seat_tier.id }}">
+          <input type="hidden" name="quantity" value="{{ quantity }}">
+          <input type="hidden" name="membership_id" value="{{ membership.id if membership else '' }}">
+          <input type="hidden" name="selected_seats" value="{{ selected_seats if selected_seats else '' }}">
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-light" href="{{ url_for('customer.ticket_selection', show_id=show.id) }}">Change selection</a>
+            <button class="btn btn-warning flex-grow-1" type="submit">Confirm booking</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
