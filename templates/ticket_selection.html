@@ -160,7 +160,7 @@
                       {% set seat_id = tier.name ~ "-" ~ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[r % 26] ~ (s + 1) %}
                       {% set is_booked = seat_id in booked_seats or not tier.is_selectable %}
                       
-                      <div class="seat {% if is_booked %}booked{% else %}available{% endif %}" 
+                      <div class="seat tier-{{ tier.name|lower }} {% if is_booked %}booked{% else %}available{% endif %}" 
                            data-seat-id="{{ seat_id }}" 
                            data-tier-id="{{ tier.id }}"
                            title="{{ seat_id }}">
@@ -183,7 +183,7 @@
     </div>
   </div>
 
-  <div class="card cp-card sticky-bottom bottom-0 mb-4" style="z-index: 100;">
+  <div class="card cp-receipt-card sticky-bottom bottom-0 mb-4" style="z-index: 100;">
     <div class="card-body">
       <div class="row g-3 align-items-end">
         <div class="col-md-3">

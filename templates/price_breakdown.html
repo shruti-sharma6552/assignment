@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-7">
-    <div class="card cp-card">
+    <div class="cp-ticket-card">
       <div class="card-body p-4">
         <h1 class="h5 mb-1">Price breakdown</h1>
         <p class="text-secondary small">
@@ -15,8 +15,10 @@
         {% if selected_seats %}
         <p class="text-secondary small">Seats: {{ selected_seats }}</p>
         {% endif %}
+        
+        <div class="cp-ticket-divider"></div>
 
-        <table class="table cp-table">
+        <table class="table cp-table table-borderless">
           <tbody>
             <tr><td>Ticket amount</td><td class="text-end">₹{{ '%.2f'|format(breakdown.base_amount) }}</td></tr>
             <tr><td>Festival discount{% if breakdown.festival_name %} ({{ breakdown.festival_name }}){% endif %}</td>
@@ -27,9 +29,13 @@
             <tr><td>Convenience fee</td><td class="text-end">₹{{ '%.2f'|format(breakdown.convenience_fee) }}</td></tr>
             <tr><td>Taxable amount</td><td class="text-end">₹{{ '%.2f'|format(breakdown.taxable_amount) }}</td></tr>
             <tr><td>GST ({{ '%.2f'|format(breakdown.gst_rate) }}%)</td><td class="text-end">₹{{ '%.2f'|format(breakdown.gst_amount) }}</td></tr>
-            <tr class="cp-total"><td>Total</td><td class="text-end">₹{{ '%.2f'|format(breakdown.final_amount) }}</td></tr>
           </tbody>
         </table>
+        
+        <div class="cp-ticket-total d-flex justify-content-between align-items-center mb-4">
+          <span class="fs-5 fw-bold text-secondary">Total</span>
+          <span class="fs-4 fw-bold" style="color: var(--cp-blue-deep);">₹{{ '%.2f'|format(breakdown.final_amount) }}</span>
+        </div>
 
         <form method="post" action="{{ url_for('booking.create') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

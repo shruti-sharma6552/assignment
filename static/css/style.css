@@ -5,6 +5,11 @@
   --cp-blue-sky: #8acff8;
   --cp-yellow-pale: #f4eb6c;
   --cp-yellow-gold: #ffd444;
+  --cp-pink: #ff6b81;
+  --cp-purple: #9b59b6;
+  --cp-green: #2ecc71;
+  --cp-orange: #f39c12;
+  --cp-red: #e74c3c;
 
   --cp-bg: #f5fbff;
   --cp-surface: #ffffff;
@@ -36,8 +41,10 @@
 
 body {
   background:
-    radial-gradient(1100px 480px at 10% -10%, rgba(138, 207, 248, .35), transparent 60%),
-    radial-gradient(900px 420px at 100% 0%, rgba(255, 212, 68, .25), transparent 55%),
+    radial-gradient(1100px 480px at 10% -10%, rgba(138, 207, 248, .4), transparent 60%),
+    radial-gradient(900px 420px at 100% 0%, rgba(255, 212, 68, .3), transparent 55%),
+    radial-gradient(700px 400px at 50% 100%, rgba(255, 107, 129, .15), transparent 60%),
+    radial-gradient(800px 400px at 0% 80%, rgba(155, 89, 182, .15), transparent 50%),
     var(--cp-bg);
   color: var(--cp-text);
   font-family: "Poppins", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
@@ -596,7 +603,7 @@ a:hover {
   flex-direction: column;
   justify-content: center;
   color: #fff;
-  background: linear-gradient(155deg, var(--cp-blue-deep) 0%, #0080c9 55%, #2fa4e0 100%);
+  background: linear-gradient(155deg, var(--cp-blue-deep) 0%, var(--cp-purple) 55%, var(--cp-pink) 100%);
   overflow: hidden;
 }
 
@@ -854,4 +861,149 @@ a:hover {
   a {
     color: #000 !important;
   }
+}
+
+/* ------------------------------------------------------------ UI enhancements -- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+main.container, main.container-fluid {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Receipt Style */
+.cp-receipt-card {
+  border-top: 3px dashed var(--cp-muted);
+  border-radius: 0 0 14px 14px;
+  background: var(--cp-surface);
+  box-shadow: 0 -4px 12px rgba(0, 97, 153, 0.08);
+  transition: all 0.3s ease-in-out;
+  position: relative;
+}
+
+/* Ticket/Boarding Pass Layout for Breakdown & Invoice */
+.cp-ticket-card {
+  border-radius: 16px;
+  background: var(--cp-surface);
+  box-shadow: var(--cp-shadow);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--cp-line);
+}
+
+.cp-ticket-divider {
+  position: relative;
+  border-bottom: 2px dashed var(--cp-line);
+  margin: 1.5rem 0;
+}
+
+.cp-ticket-divider::before,
+.cp-ticket-divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  background: var(--cp-bg);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.08);
+}
+
+.cp-ticket-divider::before {
+  left: -36px;
+}
+
+.cp-ticket-divider::after {
+  right: -36px;
+}
+
+.cp-ticket-total {
+  background: var(--cp-surface-tint);
+  border: 2px solid var(--cp-blue-deep);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+/* Sticky Headers */
+.cp-table th.sticky-top {
+  background: var(--cp-surface-tint);
+  z-index: 10;
+}
+
+/* Zebra Striping */
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: var(--cp-surface-tint);
+}
+
+/* Mobile Scroll Hint */
+.table-responsive {
+  position: relative;
+}
+.table-responsive::before {
+  content: "Scroll for more ➔";
+  position: absolute;
+  top: -24px;
+  right: 12px;
+  font-size: 0.75rem;
+  color: var(--cp-muted);
+  font-weight: 600;
+  display: none;
+}
+@media (max-width: 768px) {
+  .table-responsive::before {
+    display: block;
+  }
+}
+
+/* Seat map colors */
+.seat.tier-normal { border-color: #888; }
+.seat.tier-silver { border-color: #aaa; background-color: #333; }
+.seat.tier-gold { border-color: var(--cp-yellow-gold); background-color: rgba(255, 212, 68, 0.1); }
+.seat.tier-diamond { border-color: var(--cp-blue-sky); background-color: rgba(138, 207, 248, 0.1); }
+.seat.tier-platinum { border-color: var(--cp-green); background-color: rgba(46, 204, 113, 0.1); }
+.seat.tier-recliner { border-color: var(--cp-purple); background-color: rgba(155, 89, 182, 0.1); }
+
+.seat.tier-normal:hover.available { background-color: #444; }
+.seat.tier-silver:hover.available { background-color: #555; }
+.seat.tier-gold:hover.available { background-color: rgba(255, 212, 68, 0.3); }
+.seat.tier-diamond:hover.available { background-color: rgba(138, 207, 248, 0.3); }
+.seat.tier-platinum:hover.available { background-color: rgba(46, 204, 113, 0.3); }
+.seat.tier-recliner:hover.available { background-color: rgba(155, 89, 182, 0.3); }
+
+/* Selected Glow */
+.seat.selected {
+  transform: scale(1.15);
+  box-shadow: 0 0 10px var(--cp-yellow-gold);
+  background-color: var(--cp-yellow-gold) !important;
+  border-color: var(--cp-yellow-gold) !important;
+  color: var(--cp-text) !important;
+  z-index: 2;
+  position: relative;
+}
+
+/* Admin Dashboard Card Left Border */
+.cp-stat-border-1 { border-left: 4px solid var(--cp-blue-deep); }
+.cp-stat-border-2 { border-left: 4px solid var(--cp-blue-sky); }
+.cp-stat-border-3 { border-left: 4px solid var(--cp-yellow-gold); }
+.cp-stat-border-4 { border-left: 4px solid var(--cp-pink); }
+.cp-stat-border-5 { border-left: 4px solid var(--cp-purple); }
+.cp-stat-border-6 { border-left: 4px solid var(--cp-green); }
+
+/* Empty State SVG */
+.cp-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: var(--cp-muted);
+}
+.cp-empty-state svg {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1rem;
+  opacity: 0.6;
 }

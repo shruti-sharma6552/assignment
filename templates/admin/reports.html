@@ -5,9 +5,10 @@
 
 <div class="card cp-card mb-4"><div class="card-body">
   <h2 class="h6 mb-3">Revenue by date</h2>
-  <table class="table cp-table mb-0">
-    <thead><tr><th>Date</th><th class="text-end">Bookings</th><th class="text-end">Tickets</th>
-        <th class="text-end">Revenue</th><th class="text-end">GST</th></tr></thead>
+  <div class="table-responsive" style="max-height: 300px;">
+  <table class="table cp-table table-striped mb-0">
+    <thead><tr><th class="sticky-top">Date</th><th class="sticky-top text-end">Bookings</th><th class="sticky-top text-end">Tickets</th>
+        <th class="sticky-top text-end">Revenue</th><th class="sticky-top text-end">GST</th></tr></thead>
     <tbody>
       {% for row in revenue_report %}
         <tr><td>{{ row.day }}</td><td class="text-end">{{ row.bookings }}</td>
@@ -15,43 +16,63 @@
             <td class="text-end">₹{{ '%.2f'|format(row.revenue) }}</td>
             <td class="text-end">₹{{ '%.2f'|format(row.gst) }}</td></tr>
       {% else %}
-        <tr><td colspan="5" class="text-secondary">No revenue recorded yet.</td></tr>
+        <tr><td colspan="5" class="text-center py-5">
+          <div class="cp-empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path></svg>
+            No revenue recorded yet.
+          </div>
+        </td></tr>
       {% endfor %}
     </tbody>
   </table>
+  </div>
 </div></div>
 
 <div class="card cp-card mb-4"><div class="card-body">
   <h2 class="h6 mb-3">Ticket tiers</h2>
-  <table class="table cp-table mb-0">
-    <thead><tr><th>Tier</th><th class="text-end">Tickets sold</th><th class="text-end">Revenue</th>
-        <th class="text-end">Seats remaining</th></tr></thead>
+  <div class="table-responsive" style="max-height: 300px;">
+  <table class="table cp-table table-striped mb-0">
+    <thead><tr><th class="sticky-top">Tier</th><th class="sticky-top text-end">Tickets sold</th><th class="sticky-top text-end">Revenue</th>
+        <th class="sticky-top text-end">Seats remaining</th></tr></thead>
     <tbody>
       {% for row in tier_report %}
         <tr><td>{{ row.tier }}</td><td class="text-end">{{ row.tickets }}</td>
             <td class="text-end">₹{{ '%.2f'|format(row.revenue) }}</td>
             <td class="text-end">{{ row.remaining }}</td></tr>
       {% else %}
-        <tr><td colspan="4" class="text-secondary">No tiers configured.</td></tr>
+        <tr><td colspan="4" class="text-center py-5">
+          <div class="cp-empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="12" x2="22" y2="12" stroke-dasharray="2 2"></line></svg>
+            No tiers configured.
+          </div>
+        </td></tr>
       {% endfor %}
     </tbody>
   </table>
+  </div>
 </div></div>
 
 <div class="card cp-card"><div class="card-body">
   <h2 class="h6 mb-3">Movies</h2>
-  <table class="table cp-table mb-0">
-    <thead><tr><th>Movie</th><th class="text-end">Bookings</th><th class="text-end">Tickets sold</th>
-        <th class="text-end">Revenue</th></tr></thead>
+  <div class="table-responsive" style="max-height: 300px;">
+  <table class="table cp-table table-striped mb-0">
+    <thead><tr><th class="sticky-top">Movie</th><th class="sticky-top text-end">Bookings</th><th class="sticky-top text-end">Tickets sold</th>
+        <th class="sticky-top text-end">Revenue</th></tr></thead>
     <tbody>
       {% for row in movie_report %}
         <tr><td>{{ row.movie }}</td><td class="text-end">{{ row.bookings }}</td>
             <td class="text-end">{{ row.tickets }}</td>
             <td class="text-end">₹{{ '%.2f'|format(row.revenue) }}</td></tr>
       {% else %}
-        <tr><td colspan="4" class="text-secondary">No bookings yet.</td></tr>
+        <tr><td colspan="4" class="text-center py-5">
+          <div class="cp-empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+            No bookings yet.
+          </div>
+        </td></tr>
       {% endfor %}
     </tbody>
   </table>
+  </div>
 </div></div>
 {% endblock %}

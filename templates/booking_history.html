@@ -3,10 +3,10 @@
 {% block content %}
 <h1 class="h4 mb-3">My bookings</h1>
 <div class="table-responsive">
-<table class="table cp-table align-middle">
+<table class="table cp-table table-striped align-middle">
   <thead>
-    <tr><th>Booking ID</th><th>Movie</th><th>Cinema</th><th>Show</th><th>Tier</th>
-        <th class="text-end">Qty</th><th class="text-end">Amount</th><th>Status</th><th>Booked on</th></tr>
+    <tr><th class="sticky-top">Booking ID</th><th class="sticky-top">Movie</th><th class="sticky-top">Cinema</th><th class="sticky-top">Show</th><th class="sticky-top">Tier</th>
+        <th class="sticky-top text-end">Qty</th><th class="sticky-top text-end">Amount</th><th class="sticky-top">Status</th><th class="sticky-top">Booked on</th></tr>
   </thead>
   <tbody>
   {% for b in bookings %}
@@ -22,8 +22,15 @@
       <td>{{ b.created_at.strftime('%d %b %Y') }}</td>
     </tr>
   {% else %}
-    <tr><td colspan="9" class="text-secondary">You have not booked anything yet.
-      <a href="{{ url_for('customer.movies') }}">Browse movies</a>.</td></tr>
+    <tr>
+      <td colspan="9" class="text-center py-5">
+        <div class="cp-empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+          You have not booked anything yet.<br>
+          <a href="{{ url_for('customer.movies') }}" class="btn btn-sm btn-outline-warning mt-3">Browse movies</a>
+        </div>
+      </td>
+    </tr>
   {% endfor %}
   </tbody>
 </table>

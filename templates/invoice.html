@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-lg-7">
-    <div class="card cp-card cp-invoice" id="invoice">
+    <div class="cp-ticket-card cp-invoice" id="invoice">
       <div class="card-body p-4">
         <div class="text-center mb-3">
           <h1 class="h5 mb-0">CINEPRICE</h1>
@@ -22,8 +22,10 @@
           <dt class="col-5">Quantity</dt><dd class="col-7">{{ item.quantity }}</dd>
           <dt class="col-5">Booked on</dt><dd class="col-7">{{ booking.created_at.strftime('%d %b %Y, %I:%M %p') }}</dd>
         </dl>
-        <hr>
-        <table class="table cp-table">
+        
+        <div class="cp-ticket-divider"></div>
+        
+        <table class="table cp-table table-borderless">
           <tbody>
             <tr><td>Ticket amount</td><td class="text-end">₹{{ '%.2f'|format(item.base_amount) }}</td></tr>
             <tr><td>Festival discount{% if item.festival_name %} ({{ item.festival_name }}){% endif %}</td>
@@ -32,9 +34,13 @@
                 <td class="text-end cp-minus">-₹{{ '%.2f'|format(item.member_discount) }}</td></tr>
             <tr><td>Convenience fee</td><td class="text-end">₹{{ '%.2f'|format(item.convenience_fee) }}</td></tr>
             <tr><td>GST ({{ '%.2f'|format(item.gst_rate) }}%)</td><td class="text-end">₹{{ '%.2f'|format(item.gst_amount) }}</td></tr>
-            <tr class="cp-total"><td>Total</td><td class="text-end">₹{{ '%.2f'|format(item.final_amount) }}</td></tr>
           </tbody>
         </table>
+        
+        <div class="cp-ticket-total d-flex justify-content-between align-items-center mb-4">
+          <span class="fs-5 fw-bold text-secondary">Total</span>
+          <span class="fs-4 fw-bold" style="color: var(--cp-blue-deep);">₹{{ '%.2f'|format(item.final_amount) }}</span>
+        </div>
         <p class="small text-secondary text-center mb-0">
           Prices shown are the ones that applied when this booking was made and never change.
         </p>

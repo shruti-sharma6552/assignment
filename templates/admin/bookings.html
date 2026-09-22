@@ -9,9 +9,9 @@
   </form>
 </div>
 <div class="table-responsive">
-<table class="table cp-table align-middle">
-  <thead><tr><th>Booking</th><th>Customer</th><th>Movie</th><th>Cinema</th><th>Show</th><th>Tier</th>
-      <th class="text-end">Qty</th><th class="text-end">GST</th><th class="text-end">Total</th><th></th></tr></thead>
+<table class="table cp-table table-striped align-middle">
+  <thead><tr><th class="sticky-top">Booking</th><th class="sticky-top">Customer</th><th class="sticky-top">Movie</th><th class="sticky-top">Cinema</th><th class="sticky-top">Show</th><th class="sticky-top">Tier</th>
+      <th class="sticky-top text-end">Qty</th><th class="sticky-top text-end">GST</th><th class="sticky-top text-end">Total</th><th class="sticky-top"></th></tr></thead>
   <tbody>
   {% for b in bookings %}
     <tr>
@@ -25,7 +25,14 @@
       <td class="text-end"><a class="btn btn-sm btn-outline-light" href="{{ url_for('booking.invoice', booking_pk=b.id) }}">Invoice</a></td>
     </tr>
   {% else %}
-    <tr><td colspan="10" class="text-secondary">No bookings found.</td></tr>
+    <tr>
+      <td colspan="10" class="text-center py-5">
+        <div class="cp-empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+          No bookings found.
+        </div>
+      </td>
+    </tr>
   {% endfor %}
   </tbody>
 </table>
